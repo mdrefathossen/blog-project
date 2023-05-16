@@ -1,18 +1,23 @@
 // user, title,bio,profilePics, link: {fb,twet},posts,bookmark
 const {model,Schema} = require('mongoose');
-const User = require('./User');
-const Post = require('./Post')
+
 
 const profileSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
-        ref: User,
+        ref: 'User',
         required: true
+    },
+    name : {
+        type:String,
+        required: true,
+        trim: true
     },
     title: {
         type: String,
         trim: true,
-        maxlength: 100
+        maxlength: 100,
+        maxlength : 38
     },
     bio: {
         type: String,
@@ -29,13 +34,13 @@ const profileSchema = new Schema({
     posts : [
         {
             type: Schema.Types.ObjectId,
-            ref: Post
+            ref: 'Post'
         }
     ],
     bookmarks: [
         {
             type: Schema.Types.ObjectId,
-            ref: Post
+            ref: 'Post'
         }
     ]
 },{timestamps: true})

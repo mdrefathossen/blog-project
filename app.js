@@ -1,5 +1,6 @@
 const express = require('express');
-const morgan = require('morgan')
+const morgan = require('morgan');
+const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes')
 
 const app = express()
@@ -27,7 +28,18 @@ app.get('/',(req,res) => {
 })
 
 const PORT = process.env.port || 8080;
+mongoose
+    .connect(`mongodb+srv://refatnew:refatneww@cluster0.ahw56ah.mongodb.net/?retryWrites=true&w=majority`,{useNewUrlParser: true})
+    .then(() => {
+        console.log('database connected')
+        app.listen(PORT, () => {
+            console.log(`Server is Running on Port ${PORT}`)
+        })
+    })
+    .catch(e => {
+        return console.log(e)
+    })
 
-app.listen(PORT,() => {
-    console.log(`Server is Running on Port ${PORT}`)
-})
+// app.listen(PORT,() => {
+//     console.log(`Server is Running on Port ${PORT}`)
+// })

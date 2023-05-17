@@ -3,6 +3,8 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes')
 
+
+
 const app = express()
 
 //setup view engin
@@ -19,6 +21,7 @@ const middleware = [
 ]
 app.use(middleware)
 app.use('/auth',authRoutes)
+
 
 app.get('/',(req,res) => {
     

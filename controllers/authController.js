@@ -3,7 +3,7 @@ const {validationResult} = require('express-validator')
 const User = require('../models/User');
 const errorFormatter = require('../utils/validationErrorFormater')
 exports.signupGetController = (req,res,next) => {
-     
+    
    res.render('pages/auth/signup',{title: 'Create A New Accoutn',error: {},value: {}},)
 
 }
@@ -45,17 +45,24 @@ exports.signupPostController = async (req,res,next) => {
 
 }
 exports.loginGetController = (req,res,next) => {
-    res.render('pages/auth/login',{title: 'Login Your Account',error: {}})
+    console.log(req.session.isLoggedIn,req.session.user)
+   
+    res.render('pages/auth/login',{title: 'Login Your Account',error: {}});
+    
 
 }
 exports.loginPostController = async (req,res,next) => {
     const {email,password} = req.body;
+    
+    
+    
     let errors = validationResult(req).formatWith(errorFormatter);
     if(!errors.isEmpty()){
         return res.render('pages/auth/login',
         {
             title: 'Log In To Your Account',
-            error: errors.mapped()
+            error: errors.mapped(),
+            isLoggedIn : req.session.isLoggedIn
         })
     }
     
@@ -72,8 +79,9 @@ exports.loginPostController = async (req,res,next) => {
                 message: "Invalid Credentail"
             })
         }
-        console.log("Successfully Logged in",user)
-        res.render('pages/auth/login',{title: 'Login Your Account'})
+        req.session.isLoggedIn = true;
+        req.session.user = user
+        res.render('pages/auth/login',{title: 'Login Your Account',error: {}})
     } catch (e){
         console.log(e)
         next(e)

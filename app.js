@@ -1,9 +1,25 @@
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const authRoutes = require('./routes/authRoutes')
+const session  = require('express-session')
+const MongoDBStore = require('connect-mongodb-session')(session);
+//imports Routes
+const authRoutes = require('./routes/authRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes')
 
 
+// import middeleare 
+const {bindUserWithRequest} = require('./middleware/authMiddleware');
+// const setLocals = require('./middleware/setLocals');
+const setLocals = require('./middleware/setLocals')
+
+
+const MONGODB_URI = 'mongodb+srv://refatnew:refatneww@cluster0.ahw56ah.mongodb.net/?retryWrites=true&w=majority'
+const store = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'sessions',
+    expires: 1000 * 60 * 60 * 2
+  });
 
 const app = express()
 
@@ -17,10 +33,20 @@ const middleware = [
     // express.static('public'),
     express.static('public'),
     express.urlencoded({extended: true}),
-    express.json()
+    express.json(),
+    session({
+        secret: process.env.SECRET_KEY || 'SECRET_KEY',
+        resave: false,
+        saveUninitialized: false,
+        store: store
+        
+    }),
+    bindUserWithRequest(),
+    setLocals()
 ]
 app.use(middleware)
 app.use('/auth',authRoutes)
+app.use('/dashboard',dashboardRoutes)
 
 
 app.get('/',(req,res) => {

@@ -2,15 +2,24 @@ const bcrypt = require('bcrypt')
 const {validationResult} = require('express-validator')
 const User = require('../models/User');
 const errorFormatter = require('../utils/validationErrorFormater')
+const Flash = require('../utils/Flash')
 exports.signupGetController = (req,res,next) => {
     
-   res.render('pages/auth/signup',{title: 'Create A New Accoutn',error: {},value: {}},)
+   res.render('pages/auth/signup',
+   {
+        title: 'Create A New Account',
+        error: {},
+        value: {},
+        flashMessage: Flash.getMessage(req)
+            },)
 
 }
 exports.signupPostController = async (req,res,next) => {
     let {username,email,password} = req.body;
     let errors = validationResult(req).formatWith(errorFormatter);
+   
     if(!errors.isEmpty()){
+        req.flash('fail','Please Check Your Form')
         return res.render('pages/auth/signup',
         {
             title: 'Create A New Accoutn',
@@ -19,7 +28,8 @@ exports.signupPostController = async (req,res,next) => {
                 username,
                 email,
                 password
-            }
+            },
+            flashMessage: Flash.getMessage(req)
         
         })
     }
@@ -33,9 +43,10 @@ exports.signupPostController = async (req,res,next) => {
             password: hashedPassword
             
         })
-        let createdUser = await user.save()
-        console.log('User Created Succesfully',createdUser);
-        res.render('pages/auth/signup',{title: 'Create A New Accoutn'})
+        await user.save()
+        req.flash('success','User Created Sucessfully')
+        
+        res.redirect('/auth/login')
 
     } catch(e){
         console.log(e)
@@ -45,9 +56,13 @@ exports.signupPostController = async (req,res,next) => {
 
 }
 exports.loginGetController = (req,res,next) => {
-    console.log(req.session.isLoggedIn,req.session.user)
+    
    
-    res.render('pages/auth/login',{title: 'Login Your Account',error: {}});
+    res.render('pages/auth/login',{
+        title: 'Login Your Account',
+        error: {},
+        flashMessage: Flash.getMessage(req)
+    });
     
 
 }
@@ -57,27 +72,37 @@ exports.loginPostController = async (req,res,next) => {
     
     
     let errors = validationResult(req).formatWith(errorFormatter);
+    
     if(!errors.isEmpty()){
+        req.flash('fail','Please Check Your Form')
         return res.render('pages/auth/login',
         {
             title: 'Log In To Your Account',
             error: errors.mapped(),
-            isLoggedIn : req.session.isLoggedIn
+            flashMessage: Flash.getMessage(req)
         })
     }
     
     try{
         let user = await User.findOne({email})
         if(!user){
-            return res.json({
-                message: 'Invalid Credential'
+            req.flash('fail','Please Provide valide Credebtial')
+            return res.render('pages/auth/login',
+            {
+                title: 'Log In To Your Account',
+                error: {},
+                flashMessage: Flash.getMessage(req) 
             })
         }
         let match = await bcrypt.compare(password,user.password)
         if(!match) {
-            return res.json({
-                message: "Invalid Credentail"
-            })
+            req.flash('fail','Please Provide valide Credebtial')
+            return res.render('pages/auth/login',
+        {
+            title: 'Log In To Your Account',
+            error: {},
+            flashMessage: Flash.getMessage(req)
+        })
         }
         req.session.isLoggedIn = true;
         req.session.user = user;
@@ -86,6 +111,7 @@ exports.loginPostController = async (req,res,next) => {
                 console.log(err)
                 return next(err)
             }
+            req.flash('success','SuccessFul Logged In')
             res.redirect('/dashboard')
         })
         
@@ -102,6 +128,7 @@ exports.logoutController = (req,res,next) => {
             console.log(err)
             return next(err)
         }
+        req.flash('success','Successfully Logout')
         return res.redirect('/auth/login')
     })
 }

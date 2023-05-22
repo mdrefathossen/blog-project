@@ -31,6 +31,19 @@ setMiddlewar(app)
 // using routes from Routes Directory
 setRoutes(app)
 
+app.use((req,res,next) => {
+    let error = new Error('404 Not Found');
+    error.status = 404
+    next(error)
+})
+
+app.use((error,req,res,next) => {
+    if(error.status === 404){
+        return res.render('pages/error/404', {flashMessage : {}})
+    }
+    res.render('pages/error/500',{flashMessage : {}})
+})
+
 const PORT = process.env.port || 8080;
 mongoose
     .connect(`mongodb+srv://${config.get('db-username')}:${config.get('db-password')}@cluster0.ahw56ah.mongodb.net/?retryWrites=true&w=majority`,{useNewUrlParser: true})

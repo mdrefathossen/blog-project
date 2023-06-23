@@ -1,5 +1,8 @@
+const {validationResult} =require('express-validator')
+
 const Flash = require('../utils/Flash');
 const Profile = require('../models/Profile')
+const errorFormatter = require('../utils/validationErrorFormater')
 
 
 
@@ -28,13 +31,20 @@ exports.createProfileGetController = async (req,res,next) => {
         if(profile){
            return res.redirect('/dashboard/edit-profile')
         }
-        res.render('pages/dashboard/create-profile',{title: "Create Your Profile",flashMessage : Flash.getMessage(req)})
+        res.render('pages/dashboard/create-profile',{title: "Create Your Profile",flashMessage : Flash.getMessage(req),error: {}})
     } catch(e) {
         next(e)
     }
 }
 exports.creaetProfilePostController = (req,res,next) => {
-    next()
+    let errors = validationResult(req).formatWith(errorFormatter)
+    console.log(errors.mapped().name)
+    if(!errors.isEmpty()){
+        console.log(errors.mapped().name)
+      return  res.render('pages/dashboard/create-profile',{title: "Create Your Profile",flashMessage : Flash.getMessage(req),error: errors.mapped()})
+    }
+    res.render('pages/dashboard/create-profile',{title: "Create Your Profile",flashMessage : Flash.getMessage(req),error: {}})
+    
 }
 exports.editProfileGetController = (req,res,next) => {
     next()

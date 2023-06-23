@@ -38,9 +38,9 @@ exports.createProfileGetController = async (req,res,next) => {
 }
 exports.creaetProfilePostController = (req,res,next) => {
     let errors = validationResult(req).formatWith(errorFormatter)
-    console.log(errors.mapped().name)
+    
     if(!errors.isEmpty()){
-        console.log(errors.mapped().name)
+      
       return  res.render('pages/dashboard/create-profile',{title: "Create Your Profile",flashMessage : Flash.getMessage(req),error: errors.mapped()})
     }
     res.render('pages/dashboard/create-profile',{title: "Create Your Profile",flashMessage : Flash.getMessage(req),error: {}})

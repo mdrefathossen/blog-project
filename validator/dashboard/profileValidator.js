@@ -3,9 +3,7 @@ const validator = require('validator')
 // console.log(validator)
 
 const linkValidator = value => {
-    // console.log(value)
-    console.log(!validator.isURL(value))
-    console.log(value)
+    
     if(value) {
         
         if(!validator.isURL(value)) {
